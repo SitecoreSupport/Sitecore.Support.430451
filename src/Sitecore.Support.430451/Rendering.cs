@@ -1,7 +1,9 @@
-﻿namespace Sitecore.XA.Foundation.Mvc.Wrappers
+﻿namespace Sitecore.Support.XA.Foundation.Mvc.Wrappers
 {
+    using Microsoft.Extensions.DependencyInjection;
     using Sitecore.Data;
     using Sitecore.Data.Items;
+    using Sitecore.DependencyInjection;
     using Sitecore.Mvc.Presentation;
     using Sitecore.XA.Foundation.Mvc;
     using Sitecore.XA.Foundation.Mvc.Wrappers;
@@ -16,23 +18,11 @@
 
         public RenderingProperties Properties => _sitecoreRendering.Properties;
 
-        public Item Item
-        {
-            get
-            {
-                Item item = DataSourceItem;
-                if (item == null)
-                {
-                    RenderingModel obj = _sitecoreRendering.Model as RenderingModel;
-                    if (obj == null)
-                    {
-                        return null;
-                    }
-                    item = obj.PageItem;
-                }
-                return item;
-            }
-        }
+        private IPageContext _pageContext;
+
+        protected virtual IPageContext PageContext => _pageContext ?? (_pageContext = ServiceProviderServiceExtensions.GetService<IPageContext>(ServiceLocator.ServiceProvider));
+
+        public Item Item => DataSourceItem ?? PageContext.Current;
 
         public Item DataSourceItem
         {
